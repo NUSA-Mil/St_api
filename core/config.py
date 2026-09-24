@@ -1,10 +1,14 @@
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Study API"
 
-    # Параметры базы данных PostgreSQL
+    # Основной URL базы данных (если задан через Env, берем его)
+    DATABASE_URL_ENV: str | None = None
+
+    # Резервные параметры базы данных
     DB_HOST: str = "localhost"
     DB_PORT: int = 5433
     DB_USER: str = "postgres"
@@ -13,9 +17,18 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
+        # Если Render или окружение передало DATABASE_URL напрямую:
+        url = self.DATABASE_URL_ENV or os.getenv("DATABASE_URL")
+        if url:
+            # Преобразуем postgresql:// в postgresql+asyncpg:// для SQLAlchemy async
+            if url.startswith("postgresql://"):
+                url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+            return url
+
+        # Локальный фолбэк
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
-    # Настройки JWT (доступ на 14 дней)
+    # Настройки JWT
     SECRET_KEY: str = "SUPER_SECRET_KEY_CHANGE_ME_IN_PRODUCTION_123456789"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 14
