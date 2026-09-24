@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 from pydantic import BaseModel, ConfigDict
 from models.task import AnswerType
 
@@ -9,7 +9,7 @@ class TaskBase(BaseModel):
     question_text: str
     answer_type: AnswerType
     correct_answers: Any
-    explanation: str | None = None
+    explanation: Optional[str] = None
 
 
 class TaskCreate(TaskBase):
@@ -17,12 +17,12 @@ class TaskCreate(TaskBase):
 
 
 class TaskUpdate(BaseModel):
-    topic_id: int | None = None
-    task_number: int | None = None
-    question_text: str | None = None
-    answer_type: AnswerType | None = None
-    correct_answers: Any | None = None
-    explanation: str | None = None
+    topic_id: Optional[int] = None
+    task_number: Optional[int] = None
+    question_text: Optional[str] = None
+    answer_type: Optional[AnswerType] = None
+    correct_answers: Optional[Any] = None
+    explanation: Optional[str] = None
 
 
 class TaskResponse(TaskBase):
@@ -30,10 +30,13 @@ class TaskResponse(TaskBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 class TaskCheckRequest(BaseModel):
-        user_answer: Any  # Строка, число или список ответов
+    user_answer: Any
+
 
 class TaskCheckResponse(BaseModel):
-        is_correct: bool
-        message: str
-        explanation: str | None = None
+    is_correct: bool
+    correct_answers: Optional[Any] = None
+    message: str
+    explanation: Optional[str] = None

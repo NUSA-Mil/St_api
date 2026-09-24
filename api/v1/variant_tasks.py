@@ -10,6 +10,7 @@ from api.deps import get_current_user, get_current_admin
 router = APIRouter(prefix="/variant-tasks", tags=["Variant Tasks"])
 
 
+@router.get("", response_model=list[VariantTaskResponse])
 @router.get("/", response_model=list[VariantTaskResponse])
 async def get_variant_tasks(
     db: AsyncSession = Depends(get_db),
@@ -32,6 +33,7 @@ async def get_variant_task(
     return variant_task
 
 
+@router.post("", response_model=VariantTaskResponse, status_code=status.HTTP_201_CREATED)
 @router.post("/", response_model=VariantTaskResponse, status_code=status.HTTP_201_CREATED)
 async def create_variant_task(
     vt_in: VariantTaskCreate,
